@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:random_number_test_project/random_number_api/random_number_api.dart';
+import 'package:random_number_test_project/services/firebase/firebase.dart';
+import 'package:random_number_test_project/services/random_number_api/random_number_api.dart';
 
 class RandomNumberWidget extends StatefulWidget {
   const RandomNumberWidget({Key? key}) : super(key: key);
@@ -33,6 +34,7 @@ class _RandomNumberWidgetState extends State<RandomNumberWidget> {
                           : () {
                               setState(() {
                                 previousNumbers.add(snapshot.data!);
+                                FirebaseApi().addData(snapshot.data!);
                                 randomNumberFuture = RandomNumberApi.getRandomNumberFromApi();
                               });
                             },
