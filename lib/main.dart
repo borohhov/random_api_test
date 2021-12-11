@@ -1,11 +1,13 @@
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:random_number_test_project/services/firebase/firebase_auth.dart';
+import 'package:random_number_test_project/services/firebase/firebase_core.dart';
 
 import 'package:random_number_test_project/widgets/random_number_widget.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await FirebaseCoreApi.init();
   runApp(const MyApp());
 }
 
@@ -14,12 +16,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Random Number Generator',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Random Number Generator'),
+    return StreamBuilder<User?>(
+      stream: FirebaseAuthApi().listenToAuth(),
+      builder: (context, snapshot) {
+        String? userId;
+        if(snapshot.hasData) {
+          userId = snapshot.data?.uid;
+        }
+        else if(!snapshot.hasData && snapshot.connectionState == ConnectionState.active) {
+          FirebaseAuthApi().signInAnonymously();
+        }
+        return MaterialApp(
+          title: 'Random Number Generator ' + (userId != null ? "In" : "anonymous") ,
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
+          home: MyHomePage(title: 'Random Number ' + (userId != null ? "In" : "anonymous")),
+        );
+      }
     );
   }
 }
